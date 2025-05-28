@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Business Profit Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    input, button {
+      padding: 7px;
+      margin-right: 5px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      background-color: white;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+
+    .summary {
+      margin-top: 20px;
+      font-weight: bold;
+      background: #fff;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    button.sell-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Business Profit Calculator</h2>
+
+<div>
+  <div class="form-group">
+    <input type="text" id="item" placeholder="Item name">
+    <input type="number" id="buyPrice" placeholder="Buying price">
+    <input type="number" id="sellPrice" placeholder="Selling price">
+    <input type="number" id="quantity" placeholder="Quantity">
+    <button onclick="addItem()">Add Item</button>
+  </div>
+
+  <table id="itemsTable">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Buy Price</th>
+        <th>Sell Price</th>
+        <th>Quantity</th>
+        <th>Sold</th>
+        <th>Remaining</th>
+        <th>Sell</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="summary" id="summary">
+    Total Expenditure: KES 0 | Total Sales: KES 0 | Profit: KES 0
+  </div>
+</div>
+
+<script>
+  let items = [];
+
+  function addItem() {
+    const item = document.getElementById('item').value;
+    const buyPrice = parseFloat(document.getElementById('buyPrice').value);
+    const sellPrice = parseFloat(document.getElementById('sellPrice').value);
+    const quantity = parseInt(document.getElementById('quantity').value);
+
+    if (!item || isNaN(buyPrice) || isNaN(sellPrice) || isNaN(quantity) || quantity < 1) {
+      alert('Please fill all fields correctly.');
+      return;
+    }
+
+    items.push({
+      item,
+      buyPrice,
+      sellPrice,
+      quantity,
+      sold: 0
+    });
+
+    updateTable();
+    clearForm();
+  }
+
+  function sellItem(index) {
+    const qtyToSell = prompt("Enter quantity to sell:");
+    const sellQty = parseInt(qtyToSell);
+
+    if (isNaN(sellQty) || sellQty < 1 || sellQty > (items[index].quantity - items[index].sold)) {
+      alert('Invalid quantity!');
+      return;
+    }
+
+    items[index].sold += sellQty;
+    updateTable();
+  }
+
+  function updateTable() {
+    const tbody = document.querySelector('#itemsTable tbody');
+    tbody.innerHTML = '';
+
+    let totalExpenditure = 0;
+    let totalSales = 0;
+
+    items.forEach((item, index) => {
+      totalExpenditure += item.buyPrice * item.quantity;
+      totalSales += item.sellPrice * item.sold;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${item.item}</td>
+        <td>${item.buyPrice}</td>
+        <td>${item.sellPrice}</td>
+        <td>${item.quantity}</td>
+        <td>${item.sold}</td>
+        <td>${item.quantity - item.sold}</td>
+        <td><button class="sell-btn" onclick="sellItem(${index})">Sell</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    const profit = totalSales - totalExpenditure;
+    document.getElementById('summary').innerText =
+      `Total Expenditure: KES ${totalExpenditure.toFixed(2)} | Total Sales: KES ${totalSales.toFixed(2)} | Profit: KES ${profit.toFixed(2)}`;
+  }
+
+  function clearForm() {
+    document.getElementById('item').value = '';
+    document.getElementById('buyPrice').value = '';
+    document.getElementById('sellPrice').value = '';
+    document.getElementById('quantity').value = '';
+  }
+</script>
+
+</body>
+</html>
